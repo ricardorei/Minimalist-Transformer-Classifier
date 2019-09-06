@@ -1,10 +1,12 @@
 import numpy as np
 import torch
 
-from torchnlp.encoders.text import WhitespaceEncoder
 from torchnlp.encoders import LabelEncoder
+from torchnlp.encoders.text import WhitespaceEncoder
 from torchnlp.samplers.bucket_batch_sampler import BucketBatchSampler
-from torchnlp.utils import collate_tensors, sampler_to_iterator
+from torchnlp.utils import (collate_tensors, lengths_to_mask,
+                            sampler_to_iterator)
+
 
 def set_seed(seed: int, cuda: bool=True):
     """

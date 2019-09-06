@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import tqdm
 from torch import nn
 
-from models import GTransformer
+from models import CTransformer
 from torchnlp.datasets.dataset import Dataset
 from torchnlp.encoders import LabelEncoder
 from torchnlp.encoders.text import WhitespaceEncoder
@@ -31,7 +31,8 @@ def train_loop(
     :param text_encoder: Torch NLP text encoder for tokenization and vectorization.
     :param label_encoder: Torch NLP label encoder for vectorization of the labels.
     """
-     for e in range(configs.get('num_epochs', 8)):
+    seen = 0
+    for e in range(configs.get('num_epochs', 8)):
         print(f'\n Epoch {e}')
         model.train()
         
@@ -51,7 +52,7 @@ def train_loop(
             out = model(input_seqs.cuda(), input_mask.cuda())
 
             # 3) Compute loss
-            loss = F.nll_loss(out, target_seqs.cuda())
+            loss = F.nll_loss(out, targets.cuda())
             loss.backward()
 
             # 4) clip gradients
@@ -89,7 +90,7 @@ def validate(
         for sample in iterator:
             # 1) Prepare Sample
             input_seqs, input_mask, targets = prepare_sample(
-                sample, text_encoder, label_encoder, configs.get('max_length', 1000)
+                sample, text_encoder, label_encoder, max_length
             )
             # 2) Run model
             out = model(input_seqs.cuda(), input_mask.cuda()).argmax(dim=1).cpu()
@@ -115,12 +116,12 @@ def train_manager(configs: dict) -> None:
 
     # Build Transformer model
     model = CTransformer(
+                vocab_size=text_encoder.vocab_size, 
+                num_classes=label_encoder.vocab_size, 
                 emb_size=configs.get('embedding_size', 128), 
                 heads=configs.get('num_heads', 8), 
                 depth=configs.get('depth', 6), 
-                seq_length=configs.get('max_length', 1000), 
-                num_tokens=text_encoder.vocab_size, 
-                num_classes=label_encoder.vocab_size, 
+                seq_length=configs.get('max_length', 256), 
                 max_pool=configs.get('max_pool', False)
             )
     model.cuda()
