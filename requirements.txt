@@ -1,6 +1,6 @@
 numpy==1.17.1
 pytorch-nlp==0.4.1
-PyYAML==5.1.2
+PyYAML==5.4
 sacremoses==0.0.33
 scikit-learn==0.21.3
 sklearn==0.0
