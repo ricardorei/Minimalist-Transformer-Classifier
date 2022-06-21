@@ -1,4 +1,4 @@
-numpy==1.17.1
+numpy==1.22.0
 pytorch-nlp==0.4.1
 PyYAML==5.4
 sacremoses==0.0.33
